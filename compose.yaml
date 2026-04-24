@@ -1,0 +1,31 @@
+services:
+  market-db:
+    image: postgres:16-alpine
+    restart: always
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env    #change it on .env-example
+    environment:
+      - POSTGRES_DB=market
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+  market-service:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - market-db
+    env_file:
+      - .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:posgtresql://localhost:5432/market
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+
+volumes:
+  postgres_data:
