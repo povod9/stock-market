@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "wallets")
@@ -21,5 +22,5 @@ public class WalletEntity {
     private String walletId;
 
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL)
-    private List<WalletStockEntity> stocks;
+    private Set<WalletStockEntity> stocks;
 }

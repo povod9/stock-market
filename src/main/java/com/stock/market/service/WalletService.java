@@ -11,13 +11,16 @@ import com.stock.market.repository.StockRepository;
 import com.stock.market.repository.WalletRepository;
 import com.stock.market.repository.WalletStockRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
 
 @Service
+@Slf4j
 public class WalletService {
 
     private final StockRepository stockRepository;
@@ -40,44 +43,61 @@ public class WalletService {
             String stockName
     )
     {
-        StockEntity stockEntity = stockRepository.findByStockName(stockName)
-                .orElseThrow(() -> new EntityNotFoundException("Stock with this name doesn't exist: " + stockName));
+        String finalWalletId = walletId.trim();
+        String finalStockName = stockName.trim();
 
-        WalletEntity walletEntity = walletRepository.findByWalletId(walletId)
+        if(stockName.isEmpty()){
+            throw new IllegalArgumentException("Stock name must be non-empty");
+        }
+
+        if(walletId.isEmpty()){
+            throw new IllegalArgumentException("Wallet name must be non-empty");
+        }
+
+        StockEntity stockEntity = stockRepository.findByStockName(finalStockName)
+                .orElseThrow(() -> new EntityNotFoundException("Stock with this name doesn't exist: " + finalStockName));
+
+        WalletEntity walletEntity = walletRepository.findByWalletId(finalWalletId)
                 .orElseGet(() -> {
                     WalletEntity w = new WalletEntity();
-                    w.setWalletId(walletId);
-                    w.setStocks(new ArrayList<>());
+                    w.setWalletId(finalWalletId);
+                    w.setStocks(new HashSet<>());
                     return walletRepository.save(w);
                 });
-
-        walletRepository.save(walletEntity);
+        log.info("Create new wallet with wallet_id='{}'", walletEntity.getWalletId());
 
         if(type.equals(Type.BUY)) {
+
             if (stockEntity.getQuantity() == 0){
+                log.warn("Cannot buy, no stock in the bank for stockName='{}', quantity requested=1", stockEntity.getStockName());
                 throw new NoSuchElementException("There is no stock in the bank buy");
             }
-            WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(walletId,stockName)
+            WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(finalWalletId,finalStockName)
                     .orElseGet(() -> {
                         WalletStockEntity newWalletStock = new WalletStockEntity(
                                 null,
                                 walletEntity,
-                                stockName,
-                                1
+                                finalStockName,
+                                0
                         );
                         return walletStockRepository.save(newWalletStock);
                     });
+            walletEntity.getStocks().add(walletStockEntity);
 
             walletStockEntity.setQuantity(walletStockEntity.getQuantity() + 1);
             stockEntity.setQuantity(stockEntity.getQuantity() - 1);
 
             stockRepository.save(stockEntity);
             walletStockRepository.save(walletStockEntity);
+            log.info("BUY: wallet='{}', stock='{}'", finalWalletId, finalStockName);
+
         }else {
-            WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(walletId,stockName)
-                    .orElseThrow(() -> new EntityNotFoundException("Cannot find walletStock by:" + walletId + " and " + stockName));
+
+            WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(finalWalletId,finalStockName)
+                    .orElseThrow(() -> new EntityNotFoundException("Cannot find walletStock by:" + finalWalletId + " and " + finalStockName));
 
             if(walletStockEntity.getQuantity() == 0){
+                log.warn("Cannot buy, no stock in the wallet for stockName='{}', quantity requested=1", stockEntity.getStockName());
                 throw new NoSuchElementException("There is no stock in the wallet sell");
             }
 
@@ -86,19 +106,22 @@ public class WalletService {
 
             if(walletStockEntity.getQuantity() == 0){
                 walletStockRepository.delete(walletStockEntity);
+                walletEntity.getStocks().remove(walletStockEntity);
+            }else {
+                walletStockRepository.save(walletStockEntity);
             }
 
             stockRepository.save(stockEntity);
-            walletStockRepository.save(walletStockEntity);
         }
 
         AuditLogEntity createAuditLog = new AuditLogEntity(
                 null,
                 type,
-                walletId,
-                stockName
+                finalWalletId,
+                finalStockName
         );
 
         auditLogRepository.save(createAuditLog);
+        log.info("Create audit, type='{}', wallet='{}', stock='{}'", type, finalWalletId, finalStockName);
     }
 }
