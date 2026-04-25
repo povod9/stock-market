@@ -1,4 +1,8 @@
 package com.stock.market.dto;
 
-public class TradeRequest {
+import com.stock.market.enums.Type;
+
+public record TradeRequest (
+        Type type
+){
 }

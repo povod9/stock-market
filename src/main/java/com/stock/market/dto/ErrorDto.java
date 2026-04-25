@@ -1,4 +1,10 @@
 package com.stock.market.dto;
 
-public record ErrorDto() {
+import java.time.LocalDateTime;
+
+public record ErrorDto(
+        String message,
+        String errorMessage,
+        LocalDateTime time
+) {
 }
