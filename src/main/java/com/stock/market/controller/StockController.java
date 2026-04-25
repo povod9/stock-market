@@ -1,12 +1,11 @@
 package com.stock.market.controller;
 
+import com.stock.market.dto.StockDto;
 import com.stock.market.dto.StockRequestAndResponse;
 import com.stock.market.service.StockService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/stocks")
@@ -23,5 +22,11 @@ public class StockController {
         stockService.createStock(stockRequestAndResponse);
         return ResponseEntity.ok()
                 .build();
+    }
+
+    @GetMapping
+    public ResponseEntity<StockDto> findStock(){
+        StockDto stocks = stockService.findStock();
+        return ResponseEntity.ok(stocks);
     }
 }

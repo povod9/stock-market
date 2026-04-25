@@ -1,7 +1,7 @@
 package com.stock.market.dto;
 
 public record StockRequestAndResponse(
-        String stockName,
+        String name,
         Integer quantity
 ) {
 }
