@@ -1,8 +1,7 @@
 package com.stock.market.controller;
 
 import com.stock.market.dto.TradeRequest;
-import com.stock.market.entity.WalletEntity;
-import com.stock.market.enums.Type;
+import com.stock.market.dto.WalletResponse;
 import com.stock.market.service.WalletService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +22,19 @@ public class WalletController {
     public ResponseEntity<?> createTrade(
             @RequestBody TradeRequest req,
             @PathVariable("wallet_id") String walletId,
-            @PathVariable("stock_name") String stock_name
-    )
-    {
+            @PathVariable("stock_name") String stock_name) {
+
         walletService.createTrade(req.type(), walletId, stock_name);
         return ResponseEntity.ok()
                 .build();
+    }
+
+    @GetMapping("/{wallet_id}")
+    public ResponseEntity<WalletResponse> findWallet(@PathVariable("wallet_id") String walletId) {
+        WalletResponse walletResponse = walletService.findWallet(walletId);
+
+        return ResponseEntity.ok()
+                .body(walletResponse);
     }
 
 

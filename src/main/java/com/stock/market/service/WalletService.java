@@ -1,6 +1,7 @@
 package com.stock.market.service;
 
-import com.stock.market.dto.TradeRequest;
+import com.stock.market.mapper.WalletMapper;
+import com.stock.market.dto.WalletResponse;
 import com.stock.market.entity.AuditLogEntity;
 import com.stock.market.entity.StockEntity;
 import com.stock.market.entity.WalletEntity;
@@ -15,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 
@@ -27,30 +27,28 @@ public class WalletService {
     private final WalletRepository walletRepository;
     private final AuditLogRepository auditLogRepository;
     private final WalletStockRepository walletStockRepository;
+    private final WalletMapper walletMapper;
 
-    public WalletService(StockRepository stockRepository, WalletRepository walletRepository, AuditLogRepository auditLogRepository, WalletStockRepository walletStockRepository) {
+    public WalletService(StockRepository stockRepository, WalletRepository walletRepository, AuditLogRepository auditLogRepository, WalletStockRepository walletStockRepository, WalletMapper walletMapper) {
         this.stockRepository = stockRepository;
         this.walletRepository = walletRepository;
         this.auditLogRepository = auditLogRepository;
         this.walletStockRepository = walletStockRepository;
+        this.walletMapper = walletMapper;
     }
 
 
     @Transactional
-    public void createTrade(
-            Type type,
-            String walletId,
-            String stockName
-    )
-    {
+    public void createTrade(Type type, String walletId, String stockName) {
+
         String finalWalletId = walletId.trim();
         String finalStockName = stockName.trim();
 
-        if(stockName.isEmpty()){
+        if(finalWalletId.isEmpty()){
             throw new IllegalArgumentException("Stock name must be non-empty");
         }
 
-        if(walletId.isEmpty()){
+        if(finalStockName.isEmpty()){
             throw new IllegalArgumentException("Wallet name must be non-empty");
         }
 
@@ -66,13 +64,14 @@ public class WalletService {
                 });
         log.info("Create new wallet with wallet_id='{}'", walletEntity.getWalletId());
 
+        Long walletPkId = walletEntity.getId();
         if(type.equals(Type.BUY)) {
 
             if (stockEntity.getQuantity() == 0){
                 log.warn("Cannot buy, no stock in the bank for stockName='{}', quantity requested=1", stockEntity.getStockName());
                 throw new NoSuchElementException("There is no stock in the bank buy");
             }
-            WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(finalWalletId,finalStockName)
+            WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(walletPkId,finalStockName)
                     .orElseGet(() -> {
                         WalletStockEntity newWalletStock = new WalletStockEntity(
                                 null,
@@ -93,7 +92,7 @@ public class WalletService {
 
         }else {
 
-            WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(finalWalletId,finalStockName)
+            WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(walletPkId,finalStockName)
                     .orElseThrow(() -> new EntityNotFoundException("Cannot find walletStock by:" + finalWalletId + " and " + finalStockName));
 
             if(walletStockEntity.getQuantity() == 0){
@@ -123,5 +122,19 @@ public class WalletService {
 
         auditLogRepository.save(createAuditLog);
         log.info("Create audit, type='{}', wallet='{}', stock='{}'", type, finalWalletId, finalStockName);
+    }
+
+    public WalletResponse findWallet(String walletId) {
+
+        String finalWalletId = walletId.trim();
+
+        if(finalWalletId.isEmpty()){
+            throw new IllegalArgumentException("Wallet name must be non-empty");
+        }
+
+        WalletEntity walletEntity = walletRepository.findByWalletId(finalWalletId)
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find wallet=" + finalWalletId) );
+
+        return walletMapper.walletToDto(walletEntity);
     }
 }

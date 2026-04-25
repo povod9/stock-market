@@ -1,6 +1,6 @@
 package com.stock.market.service;
 
-import com.stock.market.dto.StockRequest;
+import com.stock.market.dto.StockRequestAndResponse;
 import com.stock.market.entity.StockEntity;
 import com.stock.market.repository.StockRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -19,32 +19,29 @@ public class StockService {
 
 
     @Transactional
-    public void createStock(
-            StockRequest stockRequest
-    )
-    {
+    public void createStock(StockRequestAndResponse stockRequestAndResponse) {
 
-        if (stockRequest.quantity() <= 0){
+        if (stockRequestAndResponse.quantity() <= 0){
             throw new IllegalArgumentException("Quantity cannot be zero or less");
         }
 
-        if(stockRequest.stockName() == null || stockRequest.stockName().trim().isEmpty()){
+        if(stockRequestAndResponse.stockName() == null || stockRequestAndResponse.stockName().trim().isEmpty()){
             throw new IllegalArgumentException("Stock name must be non-empty");
         }
 
-        boolean isExists = stockRepository.existsByStockName(stockRequest.stockName());
+        boolean isExists = stockRepository.existsByStockName(stockRequestAndResponse.stockName());
 
         if(isExists){
-            throw new IllegalArgumentException("Stock with this name already exists: " + stockRequest.stockName());
+            throw new IllegalArgumentException("Stock with this name already exists: " + stockRequestAndResponse.stockName());
         }
 
         StockEntity stockEntity = new StockEntity(
                 null,
-                stockRequest.stockName(),
-                stockRequest.quantity()
+                stockRequestAndResponse.stockName(),
+                stockRequestAndResponse.quantity()
         );
 
         stockRepository.save(stockEntity);
-        log.info("Stock '{}' created with quantity {}", stockRequest.stockName(), stockRequest.quantity());
+        log.info("Stock '{}' created with quantity {}", stockRequestAndResponse.stockName(), stockRequestAndResponse.quantity());
     }
 }

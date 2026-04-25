@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface WalletStockRepository extends JpaRepository<WalletStockEntity,Long> {
-    Optional<WalletStockEntity> findByWalletIdAndStockName(String walletId, String stockName);
+    Optional<WalletStockEntity> findByWalletIdAndStockName(Long walletId, String stockName);
 }

@@ -1,6 +1,6 @@
 package com.stock.market.controller;
 
-import com.stock.market.dto.StockRequest;
+import com.stock.market.dto.StockRequestAndResponse;
 import com.stock.market.service.StockService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,11 +19,8 @@ public class StockController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createStock(
-            @RequestBody StockRequest stockRequest
-    )
-    {
-        stockService.createStock(stockRequest);
+    public ResponseEntity<?> createStock(@RequestBody StockRequestAndResponse stockRequestAndResponse) {
+        stockService.createStock(stockRequestAndResponse);
         return ResponseEntity.ok()
                 .build();
     }
