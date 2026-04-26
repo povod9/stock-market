@@ -1,6 +1,5 @@
 package com.stock.market.controller;
 
-import com.stock.market.dto.StockQuantityResponse;
 import com.stock.market.dto.TradeRequest;
 import com.stock.market.dto.WalletResponse;
 import com.stock.market.service.WalletService;

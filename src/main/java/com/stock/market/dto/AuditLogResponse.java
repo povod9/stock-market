@@ -1,4 +1,8 @@
 package com.stock.market.dto;
 
-public record AuditLogResponse() {
+import java.util.List;
+
+public record AuditLogResponse(
+        List<AuditLogDto> log
+) {
 }

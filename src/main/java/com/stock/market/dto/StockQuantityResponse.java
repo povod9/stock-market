@@ -1,6 +1,6 @@
 package com.stock.market.dto;
 
-public record StockNameResponse(
-        String name
+public record StockQuantityResponse(
+        Integer quantity
 ) {
 }

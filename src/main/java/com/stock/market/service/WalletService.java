@@ -1,6 +1,5 @@
 package com.stock.market.service;
 
-import com.stock.market.dto.StockQuantityResponse;
 import com.stock.market.mapper.WalletMapper;
 import com.stock.market.dto.WalletResponse;
 import com.stock.market.entity.AuditLogEntity;
