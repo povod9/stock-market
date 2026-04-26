@@ -41,16 +41,13 @@ public class WalletService {
     @Transactional
     public void createTrade(Type type, String walletId, String stockName) {
 
-        String finalWalletId = validateWalletId(walletId);
-        String finalStockName = validateStockName(stockName);
+        StockEntity stockEntity = stockRepository.findByStockName(stockName)
+                .orElseThrow(() -> new EntityNotFoundException("Stock with this name doesn't exist: " + stockName));
 
-        StockEntity stockEntity = stockRepository.findByStockName(finalStockName)
-                .orElseThrow(() -> new EntityNotFoundException("Stock with this name doesn't exist: " + finalStockName));
-
-        WalletEntity walletEntity = walletRepository.findByWalletId(finalWalletId)
+        WalletEntity walletEntity = walletRepository.findByWalletId(walletId)
                 .orElseGet(() -> {
                     WalletEntity w = new WalletEntity();
-                    w.setWalletId(finalWalletId);
+                    w.setWalletId(walletId);
                     w.setStocks(new HashSet<>());
                     return walletRepository.save(w);
                 });
@@ -63,12 +60,12 @@ public class WalletService {
                 log.warn("Cannot buy, no stock in the bank for stockName='{}', quantity requested=1", stockEntity.getStockName());
                 throw new NoSuchElementException("There is no stock in the bank buy");
             }
-            WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(walletPkId,finalStockName)
+            WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(walletPkId,stockName)
                     .orElseGet(() -> {
                         WalletStockEntity newWalletStock = new WalletStockEntity(
                                 null,
                                 walletEntity,
-                                finalStockName,
+                                stockName,
                                 0
                         );
                         return walletStockRepository.save(newWalletStock);
@@ -80,13 +77,13 @@ public class WalletService {
 
             stockRepository.save(stockEntity);
             walletStockRepository.save(walletStockEntity);
-            log.info("BUY: wallet='{}', stock='{}'", finalWalletId, finalStockName);
+            log.info("BUY: wallet='{}', stock='{}'", walletId, stockName);
 
         }else {
 
-            WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(walletPkId,finalStockName)
+            WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(walletPkId,stockName)
                     .orElseThrow(() -> new EntityNotFoundException("Cannot find walletStock by:"
-                            + finalWalletId + " and " + finalStockName));
+                            + walletId + " and " + stockName));
 
             if(walletStockEntity.getQuantity() == 0){
                 log.warn("Cannot buy, no stock in the wallet for stockName='{}', quantity requested=1", stockEntity.getStockName());
@@ -98,6 +95,7 @@ public class WalletService {
 
             if(walletStockEntity.getQuantity() == 0){
                 walletStockRepository.delete(walletStockEntity);
+                log.info("Stock record deleted from wallet '{}' as quantity reached 0", walletId);
                 walletEntity.getStocks().remove(walletStockEntity);
             }else {
                 walletStockRepository.save(walletStockEntity);
@@ -109,57 +107,33 @@ public class WalletService {
         AuditLogEntity createAuditLog = new AuditLogEntity(
                 null,
                 type,
-                finalWalletId,
-                finalStockName
+                walletId,
+                stockName
         );
 
         auditLogRepository.save(createAuditLog);
-        log.info("Create audit, type='{}', wallet='{}', stock='{}'", type, finalWalletId, finalStockName);
+        log.info("Create audit, type='{}', wallet='{}', stock='{}'", type, walletId, stockName);
     }
 
     public WalletResponse findWallet(String walletId) {
 
-        String finalWalletId = validateWalletId(walletId);
-
-        WalletEntity walletEntity = walletRepository.findByWalletId(finalWalletId)
-                .orElseThrow(() -> new EntityNotFoundException("Cannot find wallet=" + finalWalletId) );
+        WalletEntity walletEntity = walletRepository.findByWalletId(walletId)
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find wallet=" + walletId) );
 
         return walletMapper.walletToDto(walletEntity);
     }
 
     public Integer findStockInTheWallet(String walletId, String stockName) {
 
-        String finalWalletId = validateWalletId(walletId);
-        String finalStockName = validateStockName(stockName);
-
-        WalletEntity walletEntity = walletRepository.findByWalletId(finalWalletId)
-                .orElseThrow(() -> new EntityNotFoundException("Cannot find wallet=" + finalWalletId));
+        WalletEntity walletEntity = walletRepository.findByWalletId(walletId)
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find wallet=" + walletId));
 
         Long walletPkId = walletEntity.getId();
 
-        WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(walletPkId, finalStockName)
+        WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(walletPkId, stockName)
                 .orElseThrow(() ->  new EntityNotFoundException("Cannot find walletStock by:"
-                        + finalWalletId + " and " + finalStockName));
+                        + walletId + " and " + stockName));
 
         return walletStockEntity.getQuantity();
-    }
-
-
-    public static String validateWalletId(String walletId){
-        if(walletId == null)
-            throw new IllegalArgumentException("Wallet id must be non-null");
-        String finalWalletId = walletId.trim();
-        if(finalWalletId.isEmpty())
-            throw new IllegalArgumentException("Wallet id must be non-empty");
-        return finalWalletId;
-    }
-
-    public static String validateStockName(String stockName){
-        if (stockName == null)
-            throw new IllegalArgumentException("Stock name must be non-null");
-        String finalStockName = stockName.trim();
-        if(finalStockName.isEmpty())
-            throw new IllegalArgumentException("Stock name must be non-empty");
-        return finalStockName;
     }
 }

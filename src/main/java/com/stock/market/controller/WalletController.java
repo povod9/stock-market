@@ -22,8 +22,8 @@ public class WalletController {
     @PostMapping("/{wallet_id}/stocks/{stock_name}")
     public ResponseEntity<?> createTrade(
             @Valid @RequestBody TradeRequest req,
-            @Valid @PathVariable("wallet_id") String walletId,
-            @Valid @PathVariable("stock_name") String stockName) {
+            @PathVariable("wallet_id") String walletId,
+            @PathVariable("stock_name") String stockName) {
 
         walletService.createTrade(req.type(), walletId, stockName);
         return ResponseEntity.ok()
@@ -31,7 +31,7 @@ public class WalletController {
     }
 
     @GetMapping("/{wallet_id}")
-    public ResponseEntity<WalletResponse> findWallet(@Valid @PathVariable("wallet_id") String walletId) {
+    public ResponseEntity<WalletResponse> findWallet(@PathVariable("wallet_id") String walletId) {
         WalletResponse walletResponse = walletService.findWallet(walletId);
 
         return ResponseEntity.ok()
@@ -40,8 +40,8 @@ public class WalletController {
 
     @GetMapping("/{wallet_id}/stocks/{stock_name}")
     public ResponseEntity<Integer> findStockInTheWallet(
-            @Valid @PathVariable("wallet_id") String walletId,
-            @Valid @PathVariable("stock_name") String stockName) {
+            @PathVariable("wallet_id") String walletId,
+            @PathVariable("stock_name") String stockName) {
 
         Integer stockQuantity = walletService.findStockInTheWallet(walletId, stockName);
 

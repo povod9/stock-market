@@ -1,9 +1,11 @@
 package com.stock.market.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.Set;
 
 public record WalletResponse(
-        String walletId,
+        @NotBlank String walletId,
         Set<StockRequestAndResponse> stocks
 ) {
 }

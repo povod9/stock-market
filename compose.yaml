@@ -16,8 +16,8 @@ services:
 
   market-service:
     build: .
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     depends_on:
       - market-db
     env_file:
@@ -26,6 +26,21 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://market-db:5432/market
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+    deploy:
+      mode: replicated
+      replicas: 2
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    environment:
+      - NGINX_PORT=8080
+    volumes:
+      - ./nginx.conf:/etc/nginx/templates/nginx.conf.template
+    ports:
+       - "${APP_PORT:-8080}:8080"
+    depends_on:
+      - market-service
 
 volumes:
   postgres_data:

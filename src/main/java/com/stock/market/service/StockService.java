@@ -27,34 +27,28 @@ public class StockService {
     @Transactional
     public void createStock(StockRequestAndResponse stockRequestAndResponse) {
 
-        String finalName = stockRequestAndResponse.name().trim();
-        if (stockRequestAndResponse.quantity() <= 0){
-            throw new IllegalArgumentException("Quantity cannot be zero or less");
-        }
+        String name = stockRequestAndResponse.name();
 
-        if(finalName.isEmpty()){
-            throw new IllegalArgumentException("Stock name must be non-empty");
-        }
-
-        boolean isExists = stockRepository.existsByStockName(finalName);
+        boolean isExists = stockRepository.existsByStockName(name);
 
         if(isExists){
-            throw new IllegalArgumentException("Stock with this name already exists: " + finalName);
+            throw new IllegalArgumentException("Stock with this name already exists: " + name);
         }
 
         StockEntity stockEntity = new StockEntity(
                 null,
-                finalName,
+                name,
                 stockRequestAndResponse.quantity()
         );
 
         stockRepository.save(stockEntity);
-        log.info("Stock '{}' created with quantity {}", finalName, stockRequestAndResponse.quantity());
+        log.info("Stock '{}' created with quantity {}", name, stockRequestAndResponse.quantity());
     }
 
     public StockDto findStock() {
 
         List<StockEntity> stockEntities = stockRepository.findAll();
+        log.info("Found '{}' stock in bank", stockEntities.size());
         List<StockRequestAndResponse> dtoList = stockMapper.listStockToDto(stockEntities);
 
         return new StockDto(dtoList);
