@@ -3,6 +3,7 @@ package com.stock.market.controller;
 import com.stock.market.dto.StockDto;
 import com.stock.market.dto.StockRequestAndResponse;
 import com.stock.market.service.StockService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +19,7 @@ public class StockController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createStock(@RequestBody StockRequestAndResponse stockRequestAndResponse) {
+    public ResponseEntity<?> createStock(@Valid @RequestBody StockRequestAndResponse stockRequestAndResponse) {
         stockService.createStock(stockRequestAndResponse);
         return ResponseEntity.ok()
                 .build();

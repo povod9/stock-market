@@ -1,5 +1,6 @@
 package com.stock.market.service;
 
+import com.stock.market.dto.StockQuantityResponse;
 import com.stock.market.mapper.WalletMapper;
 import com.stock.market.dto.WalletResponse;
 import com.stock.market.entity.AuditLogEntity;
@@ -41,16 +42,8 @@ public class WalletService {
     @Transactional
     public void createTrade(Type type, String walletId, String stockName) {
 
-        String finalWalletId = walletId.trim();
-        String finalStockName = stockName.trim();
-
-        if(finalWalletId.isEmpty()){
-            throw new IllegalArgumentException("Stock name must be non-empty");
-        }
-
-        if(finalStockName.isEmpty()){
-            throw new IllegalArgumentException("Wallet name must be non-empty");
-        }
+        String finalWalletId = validateWalletId(walletId);
+        String finalStockName = validateStockName(stockName);
 
         StockEntity stockEntity = stockRepository.findByStockName(finalStockName)
                 .orElseThrow(() -> new EntityNotFoundException("Stock with this name doesn't exist: " + finalStockName));
@@ -93,7 +86,8 @@ public class WalletService {
         }else {
 
             WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(walletPkId,finalStockName)
-                    .orElseThrow(() -> new EntityNotFoundException("Cannot find walletStock by:" + finalWalletId + " and " + finalStockName));
+                    .orElseThrow(() -> new EntityNotFoundException("Cannot find walletStock by:"
+                            + finalWalletId + " and " + finalStockName));
 
             if(walletStockEntity.getQuantity() == 0){
                 log.warn("Cannot buy, no stock in the wallet for stockName='{}', quantity requested=1", stockEntity.getStockName());
@@ -126,15 +120,47 @@ public class WalletService {
 
     public WalletResponse findWallet(String walletId) {
 
-        String finalWalletId = walletId.trim();
-
-        if(finalWalletId.isEmpty()){
-            throw new IllegalArgumentException("Wallet name must be non-empty");
-        }
+        String finalWalletId = validateWalletId(walletId);
 
         WalletEntity walletEntity = walletRepository.findByWalletId(finalWalletId)
                 .orElseThrow(() -> new EntityNotFoundException("Cannot find wallet=" + finalWalletId) );
 
         return walletMapper.walletToDto(walletEntity);
+    }
+
+    public Integer findStockInTheWallet(String walletId, String stockName) {
+
+        String finalWalletId = validateWalletId(walletId);
+        String finalStockName = validateStockName(stockName);
+
+        WalletEntity walletEntity = walletRepository.findByWalletId(finalWalletId)
+                .orElseThrow(() -> new EntityNotFoundException("Cannot find wallet=" + finalWalletId));
+
+        Long walletPkId = walletEntity.getId();
+
+        WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(walletPkId, finalStockName)
+                .orElseThrow(() ->  new EntityNotFoundException("Cannot find walletStock by:"
+                        + finalWalletId + " and " + finalStockName));
+
+        return walletStockEntity.getQuantity();
+    }
+
+
+    public static String validateWalletId(String walletId){
+        if(walletId == null)
+            throw new IllegalArgumentException("Wallet id must be non-null");
+        String finalWalletId = walletId.trim();
+        if(finalWalletId.isEmpty())
+            throw new IllegalArgumentException("Wallet id must be non-empty");
+        return finalWalletId;
+    }
+
+    public static String validateStockName(String stockName){
+        if (stockName == null)
+            throw new IllegalArgumentException("Stock name must be non-null");
+        String finalStockName = stockName.trim();
+        if(finalStockName.isEmpty())
+            throw new IllegalArgumentException("Stock name must be non-empty");
+        return finalStockName;
     }
 }

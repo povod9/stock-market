@@ -1,8 +1,10 @@
 package com.stock.market.controller;
 
+import com.stock.market.dto.StockQuantityResponse;
 import com.stock.market.dto.TradeRequest;
 import com.stock.market.dto.WalletResponse;
 import com.stock.market.service.WalletService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,22 +22,32 @@ public class WalletController {
 
     @PostMapping("/{wallet_id}/stocks/{stock_name}")
     public ResponseEntity<?> createTrade(
-            @RequestBody TradeRequest req,
-            @PathVariable("wallet_id") String walletId,
-            @PathVariable("stock_name") String stock_name) {
+            @Valid @RequestBody TradeRequest req,
+            @Valid @PathVariable("wallet_id") String walletId,
+            @Valid @PathVariable("stock_name") String stockName) {
 
-        walletService.createTrade(req.type(), walletId, stock_name);
+        walletService.createTrade(req.type(), walletId, stockName);
         return ResponseEntity.ok()
                 .build();
     }
 
     @GetMapping("/{wallet_id}")
-    public ResponseEntity<WalletResponse> findWallet(@PathVariable("wallet_id") String walletId) {
+    public ResponseEntity<WalletResponse> findWallet(@Valid @PathVariable("wallet_id") String walletId) {
         WalletResponse walletResponse = walletService.findWallet(walletId);
 
         return ResponseEntity.ok()
                 .body(walletResponse);
     }
 
+    @GetMapping("/{wallet_id}/stocks/{stock_name}")
+    public ResponseEntity<Integer> findStockInTheWallet(
+            @Valid @PathVariable("wallet_id") String walletId,
+            @Valid @PathVariable("stock_name") String stockName) {
+
+        Integer stockQuantity = walletService.findStockInTheWallet(walletId, stockName);
+
+        return ResponseEntity.ok()
+                .body(stockQuantity);
+    }
 
 }
