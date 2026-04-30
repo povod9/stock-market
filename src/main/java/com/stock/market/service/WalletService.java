@@ -82,8 +82,7 @@ public class WalletService {
         }else {
 
             WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(walletPkId,stockName)
-                    .orElseThrow(() -> new EntityNotFoundException("Cannot find walletStock by:"
-                            + walletId + " and " + stockName));
+                    .orElseThrow(() -> new EntityNotFoundException("Cannot find walletStock by: %s and %s".formatted(walletId,stockName)));
 
             if(walletStockEntity.getQuantity() == 0){
                 log.warn("Cannot buy, no stock in the wallet for stockName='{}', quantity requested=1", stockEntity.getStockName());
@@ -131,8 +130,7 @@ public class WalletService {
         Long walletPkId = walletEntity.getId();
 
         WalletStockEntity walletStockEntity = walletStockRepository.findByWalletIdAndStockName(walletPkId, stockName)
-                .orElseThrow(() ->  new EntityNotFoundException("Cannot find walletStock by:"
-                        + walletId + " and " + stockName));
+                .orElseThrow(() ->  new EntityNotFoundException("Cannot find walletStock by: %s and %s".formatted(walletId,stockName)));
 
         return walletStockEntity.getQuantity();
     }
