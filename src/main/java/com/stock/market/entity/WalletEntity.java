@@ -3,6 +3,7 @@ package com.stock.market.entity;
 import jakarta.persistence.*;
 import java.util.Set;
 import lombok.*;
+import org.hibernate.annotations.NaturalId;
 
 @Entity
 @Table(name = "wallets")
@@ -15,7 +16,7 @@ public class WalletEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(unique = true, nullable = false)
+  @NaturalId
   private String walletId;
 
   @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL)
