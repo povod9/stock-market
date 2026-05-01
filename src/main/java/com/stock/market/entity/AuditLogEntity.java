@@ -1,6 +1,6 @@
 package com.stock.market.entity;
 
-import com.stock.market.enums.Type;
+import com.stock.market.enums.TradeType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,17 +12,17 @@ import lombok.*;
 @NoArgsConstructor
 public class AuditLogEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(name = "trade_type", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Type type;
+  @Column(name = "trade_type", nullable = false)
+  @Enumerated(EnumType.STRING)
+  private TradeType tradeType;
 
-    @Column(nullable = false)
-    private String walletId;
+  @Column(nullable = false)
+  private String walletId;
 
-    @Column(nullable = false)
-    private String stockName;
+  @Column(nullable = false)
+  private String stockName;
 }

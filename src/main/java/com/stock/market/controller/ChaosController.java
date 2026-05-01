@@ -9,11 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class ChaosController {
 
-    @PostMapping("/chaos")
-    public ResponseEntity<?> chaosKill(){
-        log.warn("Chaos called, killing current instance");
-        System.exit(1);
-        return ResponseEntity.ok()
-                .build();
-    }
+  @PostMapping("/chaos")
+  public ResponseEntity<?> chaosKill() {
+    log.warn("Chaos called, killing current instance");
+    System.exit(1);
+    return ResponseEntity.ok().build();
+  }
 }

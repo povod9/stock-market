@@ -8,6 +8,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface WalletStockMapper {
 
-    @Mapping(source = "stockName", target = "name")
-    StockRequestAndResponse walletStockToDto(WalletStockEntity walletStockEntity);
+  @Mapping(source = "stockName", target = "name")
+  StockRequestAndResponse walletStockToRequestAndResponse(WalletStockEntity walletStockEntity);
 }

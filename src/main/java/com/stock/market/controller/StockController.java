@@ -4,30 +4,27 @@ import com.stock.market.dto.StockDto;
 import com.stock.market.dto.StockRequestAndResponse;
 import com.stock.market.service.StockService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/stocks")
+@RequiredArgsConstructor
 public class StockController {
 
-    private final StockService stockService;
+  private final StockService stockService;
 
-    public StockController(StockService stockService) {
-        this.stockService = stockService;
-    }
+  @PostMapping
+  public ResponseEntity<?> createStock(
+      @Valid @RequestBody StockRequestAndResponse stockRequestAndResponse) {
+    stockService.createStock(stockRequestAndResponse);
+    return ResponseEntity.ok().build();
+  }
 
-    @PostMapping
-    public ResponseEntity<?> createStock(@Valid @RequestBody StockRequestAndResponse stockRequestAndResponse) {
-        stockService.createStock(stockRequestAndResponse);
-        return ResponseEntity.ok()
-                .build();
-    }
-
-    @GetMapping
-    public ResponseEntity<StockDto> findStock(){
-        StockDto stocks = stockService.findStock();
-        return ResponseEntity.ok(stocks);
-    }
+  @GetMapping
+  public ResponseEntity<StockDto> findStock() {
+    StockDto stocks = stockService.findStock();
+    return ResponseEntity.ok(stocks);
+  }
 }

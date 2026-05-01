@@ -9,19 +9,20 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class WalletStockEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "wallet_id", nullable = false)
-    private WalletEntity wallet;
+  @ManyToOne
+  @JoinColumn(name = "wallet_id", nullable = false)
+  private WalletEntity wallet;
 
-    @Column(nullable = false)
-    private String stockName;
+  @Column(nullable = false)
+  private String stockName;
 
-    @Column(nullable = false)
-    private Integer quantity;
+  @Column(nullable = false)
+  private Integer quantity;
 }

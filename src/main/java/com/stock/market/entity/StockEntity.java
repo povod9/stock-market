@@ -11,13 +11,13 @@ import lombok.*;
 @NoArgsConstructor
 public class StockEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String stockName;
+  @Column(unique = true, nullable = false)
+  private String stockName;
 
-    @Column(nullable = false)
-    private Integer quantity;
+  @Column(nullable = false)
+  private Integer quantity;
 }

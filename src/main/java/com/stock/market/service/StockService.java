@@ -5,52 +5,43 @@ import com.stock.market.dto.StockRequestAndResponse;
 import com.stock.market.entity.StockEntity;
 import com.stock.market.mapper.StockMapper;
 import com.stock.market.repository.StockRepository;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class StockService {
 
-    private final StockRepository stockRepository;
-    private final StockMapper stockMapper;
+  private final StockRepository stockRepository;
+  private final StockMapper mapper;
 
-    public StockService(StockRepository stockRepository, StockMapper stockMapper) {
-        this.stockRepository = stockRepository;
-        this.stockMapper = stockMapper;
+  @Transactional
+  public void createStock(StockRequestAndResponse stockRequestAndResponse) {
+
+    String name = stockRequestAndResponse.name();
+
+    boolean isExists = stockRepository.existsByStockName(name);
+
+    if (isExists) {
+      throw new IllegalArgumentException("Stock with this name already exists: " + name);
     }
 
+    StockEntity stockEntity = new StockEntity(null, name, stockRequestAndResponse.quantity());
 
-    @Transactional
-    public void createStock(StockRequestAndResponse stockRequestAndResponse) {
+    stockRepository.save(stockEntity);
+    log.info("Stock '{}' created with quantity {}", name, stockRequestAndResponse.quantity());
+  }
 
-        String name = stockRequestAndResponse.name();
+  public StockDto findStock() {
 
-        boolean isExists = stockRepository.existsByStockName(name);
+    List<StockEntity> stockEntities = stockRepository.findAll();
+    log.info("Found '{}' stock in bank", stockEntities.size());
+    List<StockRequestAndResponse> dtoList = mapper.listStockToDto(stockEntities);
 
-        if(isExists){
-            throw new IllegalArgumentException("Stock with this name already exists: " + name);
-        }
-
-        StockEntity stockEntity = new StockEntity(
-                null,
-                name,
-                stockRequestAndResponse.quantity()
-        );
-
-        stockRepository.save(stockEntity);
-        log.info("Stock '{}' created with quantity {}", name, stockRequestAndResponse.quantity());
-    }
-
-    public StockDto findStock() {
-
-        List<StockEntity> stockEntities = stockRepository.findAll();
-        log.info("Found '{}' stock in bank", stockEntities.size());
-        List<StockRequestAndResponse> dtoList = stockMapper.listStockToDto(stockEntities);
-
-        return new StockDto(dtoList);
-    }
+    return new StockDto(dtoList);
+  }
 }

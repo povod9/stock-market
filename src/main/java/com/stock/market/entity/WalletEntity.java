@@ -1,9 +1,8 @@
 package com.stock.market.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.util.Set;
+import lombok.*;
 
 @Entity
 @Table(name = "wallets")
@@ -12,13 +11,13 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WalletEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String walletId;
+  @Column(unique = true, nullable = false)
+  private String walletId;
 
-    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL)
-    private Set<WalletStockEntity> stocks;
+  @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL)
+  private Set<WalletStockEntity> stocks;
 }
