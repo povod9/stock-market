@@ -19,5 +19,7 @@ public class StockEntity {
   private String stockName;
 
   @Column(nullable = false)
-  private Integer quantity;
+  private Long quantity;
+
+  @Column @Version private Long version;
 }

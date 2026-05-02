@@ -35,10 +35,10 @@ public class WalletController {
   }
 
   @GetMapping("/{wallet_id}/stocks/{stock_name}")
-  public ResponseEntity<Integer> findStockInTheWallet(
+  public ResponseEntity<Long> findStockInTheWallet(
       @PathVariable("wallet_id") String walletId, @PathVariable("stock_name") String stockName) {
 
-    Integer stockQuantity = walletService.findStockInTheWallet(walletId, stockName);
+    Long stockQuantity = walletService.findStockInTheWallet(walletId, stockName);
 
     return ResponseEntity.ok().body(stockQuantity);
   }

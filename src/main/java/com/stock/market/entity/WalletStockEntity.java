@@ -7,9 +7,9 @@ import lombok.*;
 @Table(name = "wallet_stock")
 @Getter
 @Setter
+@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 public class WalletStockEntity {
 
   @Id
@@ -24,5 +24,7 @@ public class WalletStockEntity {
   private String stockName;
 
   @Column(nullable = false)
-  private Integer quantity;
+  private Long quantity;
+
+  @Column @Version private Long version;
 }

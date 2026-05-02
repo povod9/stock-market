@@ -16,8 +16,7 @@ public class WalletEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @NaturalId
-  private String walletId;
+  @NaturalId private String walletId;
 
   @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL)
   private Set<WalletStockEntity> stocks;

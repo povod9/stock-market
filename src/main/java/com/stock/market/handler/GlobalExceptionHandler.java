@@ -3,6 +3,7 @@ package com.stock.market.handler;
 import com.stock.market.dto.ErrorDto;
 import com.stock.market.exception.OutOfStockException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import org.springframework.http.ResponseEntity;
@@ -38,5 +39,12 @@ public class GlobalExceptionHandler {
     ErrorDto errorDto = new ErrorDto("Out Of Stock", e.getMessage(), LocalDateTime.now());
 
     return ResponseEntity.status(404).body(errorDto);
+  }
+
+  @ExceptionHandler(OptimisticLockException.class)
+  public ResponseEntity<ErrorDto> handleOptimisticLock(OptimisticLockException e) {
+    ErrorDto errorDto = new ErrorDto("Optimistic Lock", e.getMessage(), LocalDateTime.now());
+
+    return ResponseEntity.status(409).body(errorDto);
   }
 }

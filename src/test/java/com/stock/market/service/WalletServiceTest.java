@@ -40,7 +40,7 @@ class WalletServiceTest {
     String stockName = "Apple";
     TradeType tradeType = TradeType.BUY;
 
-    StockEntity stockEntity = new StockEntity(1L, stockName, 10);
+    StockEntity stockEntity = new StockEntity(1L, stockName, 10L, 1L);
 
     when(stockRepository.findByStockName(stockName)).thenReturn(Optional.of(stockEntity));
     when(stockRepository.save(any(StockEntity.class)))
@@ -69,11 +69,12 @@ class WalletServiceTest {
     String stockName = "Apple";
     TradeType tradeType = TradeType.BUY;
 
-    StockEntity stockEntity = new StockEntity(1L, stockName, 10);
+    StockEntity stockEntity = new StockEntity(1L, stockName, 10L, 1L);
 
     WalletEntity walletEntity = new WalletEntity(1L, walletId, new HashSet<>());
 
-    WalletStockEntity walletStockEntity = new WalletStockEntity(1L, walletEntity, stockName, 0);
+    WalletStockEntity walletStockEntity =
+        new WalletStockEntity(1L, walletEntity, stockName, 0L, 1L);
 
     when(stockRepository.findByStockName(stockName)).thenReturn(Optional.of(stockEntity));
 
@@ -96,15 +97,14 @@ class WalletServiceTest {
     String stockName = "Apple";
     TradeType tradeType = TradeType.BUY;
 
-    StockEntity stockEntity = new StockEntity(1L, stockName, 0);
+    StockEntity stockEntity = new StockEntity(1L, stockName, 0L, 1L);
 
     when(stockRepository.findByStockName(stockName)).thenReturn(Optional.of(stockEntity));
     when(walletRepository.save(any(WalletEntity.class)))
         .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
     assertThrows(
-        OutOfStockException.class,
-        () -> walletService.createTrade(tradeType, walletId, stockName));
+        OutOfStockException.class, () -> walletService.createTrade(tradeType, walletId, stockName));
 
     verify(stockRepository, never()).save(any(StockEntity.class));
     verify(walletStockRepository, never()).save(any(WalletStockEntity.class));
@@ -117,18 +117,18 @@ class WalletServiceTest {
     String stockName = "Apple";
     TradeType tradeType = TradeType.SELL;
 
-    StockEntity stockEntity = new StockEntity(1L, stockName, 0);
+    StockEntity stockEntity = new StockEntity(1L, stockName, 10L, 1L);
     WalletEntity walletEntity = new WalletEntity(1L, walletId, new HashSet<>());
-    WalletStockEntity walletStockEntity = new WalletStockEntity(1L, walletEntity, stockName, 0);
+    WalletStockEntity walletStockEntity =
+        new WalletStockEntity(1L, walletEntity, stockName, 0L, 1L);
 
     when(stockRepository.findByStockName(stockName)).thenReturn(Optional.of(stockEntity));
     when(walletRepository.findByWalletId(walletId)).thenReturn(Optional.of(walletEntity));
-    when(walletStockRepository.findByWalletIdAndStockName(walletEntity.getId(),stockName)).thenReturn(Optional.of(walletStockEntity));
+    when(walletStockRepository.findByWalletIdAndStockName(walletEntity.getId(), stockName))
+        .thenReturn(Optional.of(walletStockEntity));
 
     assertThrows(
-            OutOfStockException.class,
-            () -> walletService.createTrade(tradeType, walletId, stockName)
-    );
+        OutOfStockException.class, () -> walletService.createTrade(tradeType, walletId, stockName));
 
     verify(stockRepository, never()).save(any(StockEntity.class));
     verify(walletStockRepository, never()).save(any(WalletStockEntity.class));

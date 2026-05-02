@@ -23,17 +23,22 @@ public class StockService {
   public void createStock(StockRequestAndResponse stockRequestAndResponse) {
 
     String name = stockRequestAndResponse.name();
-
-    boolean isExists = stockRepository.existsByStockName(name);
-
-    if (isExists) {
-      throw new IllegalArgumentException("Stock with this name already exists: " + name);
-    }
-
-    StockEntity stockEntity = new StockEntity(null, name, stockRequestAndResponse.quantity());
-
-    stockRepository.save(stockEntity);
-    log.info("Stock '{}' created with quantity {}", name, stockRequestAndResponse.quantity());
+    stockRepository
+        .findByStockName(name)
+        .map(
+            stockEntity -> {
+              stockEntity.setQuantity(
+                  stockEntity.getQuantity() + stockRequestAndResponse.quantity());
+              return stockRepository.save(stockEntity);
+            })
+        .orElseGet(
+            () -> {
+              StockEntity stockEntity =
+                  new StockEntity(null, name, stockRequestAndResponse.quantity(), null);
+              return stockRepository.save(stockEntity);
+            });
+    log.info(
+        "Stock '{}' created or updated, quantity {}", name, stockRequestAndResponse.quantity());
   }
 
   public StockDto findStock() {
