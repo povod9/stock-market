@@ -6,7 +6,7 @@ This is a REST service simulating a simplified stock market, featuring:
 
 - **Bank** — manages stock pool (see `/stocks`)
 - **Wallets** — user stock portfolios (`/wallets`)
-- **Audit log** — all wallet-side trades (`/log`)
+- **Audit log** — all wallet-side trades (`/logs`)
 - **High Availability**: killing one instance does not take down the service (`/chaos`)
 
 ---
@@ -60,7 +60,7 @@ Example: Access at http://localhost:8888
 - `POST /stocks` – Add a new stock
 
 ### Audit
-- `GET /log` – Returns the full successful wallet operation log
+- `GET /logs` – Returns the full successful wallet operation log
 
 ### Chaos Engineering
 - `POST /chaos` – Kills this instance
@@ -79,7 +79,7 @@ Example: Access at http://localhost:8888
 
 ## Development
 
-- Standard Spring Boot / Java 17 / Nginx (Load Balancer) / Docker / JPA / Lombok / Flyway / Validation / MapStruct setup.
+- Standard Spring Boot / Java 21 / Nginx (Load Balancer) / Docker / JPA / Lombok / Flyway / Validation / MapStruct setup.
 - To rebuild after changes: `mvn clean package && docker compose up --build --scale market-service=2`
 - All source code, configs, and mapping logic are in this repository.
 - Flyway handles DB migrations automatically on startup
